@@ -41,6 +41,14 @@ public class User implements UserDetails {
         return username;
     }
 
+    public String getActivation(User user) {
+        if (user.isActive()) {
+            return "Активирован";
+        } else {
+            return "Не активирован";
+        }
+    }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;

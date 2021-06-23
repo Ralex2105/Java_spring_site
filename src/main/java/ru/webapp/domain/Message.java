@@ -11,6 +11,9 @@ public class Message {
 
     private String text;
     private String tag;
+    private String university;
+    private String type;
+    private String yearOfStudy;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
@@ -21,10 +24,13 @@ public class Message {
     public Message() {
     }
 
-    public Message(String text, String tag, User user) {
+    public Message(String text, String tag, String university, String type, String yearOfStudy, User user) {
         this.author = user;
-        this.text = text;
-        this.tag = tag;
+        this.text = text.trim();
+        this.tag = tag.trim();
+        this.university = university;
+        this.type = type;
+        this.yearOfStudy = yearOfStudy;
     }
 
     public String getAuthorName() {
@@ -69,5 +75,29 @@ public class Message {
 
     public void setFilename(String filename) {
         this.filename = filename;
+    }
+
+    public String getUniversity() {
+        return university;
+    }
+
+    public void setUniversity(String university) {
+        this.university = university;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getCourse() {
+        return yearOfStudy;
+    }
+
+    public void setCourse(String course) {
+        this.yearOfStudy = course;
     }
 }
