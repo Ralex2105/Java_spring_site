@@ -14,23 +14,27 @@ public class Message {
     private String university;
     private String type;
     private String yearOfStudy;
+    private String nameOfCourse;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User author;
 
     private String filename;
+    private String filenameForUser;
 
     public Message() {
     }
 
-    public Message(String text, String tag, String university, String type, String yearOfStudy, User user) {
+    public Message(String text, String tag, String university, String type,
+                   String yearOfStudy, String nameOfCourse, User user) {
         this.author = user;
         this.text = text.trim();
         this.tag = tag.trim();
         this.university = university;
         this.type = type;
         this.yearOfStudy = yearOfStudy;
+        this.nameOfCourse = nameOfCourse;
     }
 
     public String getAuthorName() {
@@ -99,5 +103,29 @@ public class Message {
 
     public void setCourse(String course) {
         this.yearOfStudy = course;
+    }
+
+    public String getFilenameForUser() {
+        return filenameForUser;
+    }
+
+    public void setFilenameForUser(String filenameForUser) {
+        this.filenameForUser = filenameForUser;
+    }
+
+    public String getYearOfStudy() {
+        return yearOfStudy;
+    }
+
+    public void setYearOfStudy(String yearOfStudy) {
+        this.yearOfStudy = yearOfStudy;
+    }
+
+    public String getNameOfCourse() {
+        return nameOfCourse;
+    }
+
+    public void setNameOfCourse(String nameOfCourse) {
+        this.nameOfCourse = nameOfCourse;
     }
 }

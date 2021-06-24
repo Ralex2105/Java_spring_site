@@ -14,7 +14,7 @@
                 <a class="nav-link" href="/main">Работы</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/main">Мой профиль</a>
+                <a class="nav-link" href="/profile">Мой профиль</a>
             </li>
             </#if>
             <#if isAdmin>
