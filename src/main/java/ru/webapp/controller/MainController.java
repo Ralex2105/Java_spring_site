@@ -6,6 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +16,9 @@ import ru.webapp.repository.MessageRepository;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.UUID;
 
@@ -69,7 +73,7 @@ public class MainController {
             String uuidFile = UUID.randomUUID().toString();
             String resultFilename = uuidFile + "." + file.getOriginalFilename();
 
-            file.transferTo(new File(uploadPath + "/" + resultFilename));
+            file.transferTo(new File("/" + uploadPath + "/" + resultFilename));
 
             message.setFilename(resultFilename);
         }
@@ -81,5 +85,14 @@ public class MainController {
         model.put("messages", messages);
 
         return "main";
+    }
+
+
+    @GetMapping("/main/{id}/delete")
+    public String deleteById(@PathVariable(value = "id") long id, Model model) throws IOException {
+        Message message = messageRepository.findById(id).orElseThrow();
+        Files.delete(Paths.get(uploadPath + "/" + message.getFilename()));
+        messageRepository.delete(message);
+        return "redirect:/main";
     }
 }

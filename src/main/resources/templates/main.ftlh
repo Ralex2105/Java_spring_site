@@ -1,5 +1,4 @@
 <#import "parts/common.ftlh" as c>
-
 <@c.page>
     <head>
         <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
@@ -69,6 +68,9 @@
                     Тег: <strong>${message.tag}</strong>,
                     Автор: <strong>${message.authorName}</strong>,
                     Название файла: <strong>${message.filename}</strong>
+                    <form action="/main/${message.id}/delete" method="get">
+                        <button class="btn btn-warning" type="submit">Удалить</button>
+                    </form>
                 </div>
             </div>
         </#list>
