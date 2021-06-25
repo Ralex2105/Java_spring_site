@@ -16,6 +16,7 @@ import java.util.UUID;
 
 @Service
 public class UserService implements UserDetailsService {
+
     @Autowired
     private UserRepository userRepository;
 
@@ -42,15 +43,16 @@ public class UserService implements UserDetailsService {
 
         if (!StringUtils.isEmpty(user.getEmail())) {
             String message = String.format(
-                    "Hello, %s! \n" +
-                            "Welcome to Sweater. Please, visit next link: http://localhost:8080/activate/%s",
+                    """
+                            Здравствуй, %s!\s
+                            Добро пожаловать в WEB-tasks\s
+                            Перейдите по ссылке, чтобы подтвердлить аккаунт:\s
+                            http://localhost:8080/activate/%s""",
                     user.getUsername(),
                     user.getActivationCode()
             );
-
             mailSender.send(user.getEmail(), "Activation code", message);
         }
-
         return true;
     }
 

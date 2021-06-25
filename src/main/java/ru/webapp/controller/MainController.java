@@ -1,6 +1,5 @@
 package ru.webapp.controller;
 
-import net.bytebuddy.dynamic.loading.ByteArrayClassLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -9,26 +8,25 @@ import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.webapp.domain.Message;
+import ru.webapp.domain.Task;
 import ru.webapp.domain.User;
-import ru.webapp.repository.MessageRepository;
+import ru.webapp.repository.TaskRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLConnection;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @Controller
 public class MainController {
+
     @Autowired
-    private MessageRepository messageRepository;
+    private TaskRepository taskRepository;
 
     @Value("${upload.path}")
     private String uploadPath;
@@ -40,22 +38,22 @@ public class MainController {
 
     @GetMapping("/profile")
     public String profile(@AuthenticationPrincipal User user, Model model) {
-        Iterable<Message> messages = messageRepository.findByAuthor(user);
-        model.addAttribute("messages", messages);
+        Iterable<Task> tasks = taskRepository.findByAuthor(user);
+        model.addAttribute("tasks", tasks);
         return "profile";
     }
 
     @GetMapping("/main")
     public String main(@RequestParam(required = false, defaultValue = "") String filter, Model model) {
-        Iterable<Message> messages;
+        Iterable<Task> tasks;
 
         if (filter != null && !filter.isEmpty()) {
-            messages = messageRepository.findByText(filter);
+            tasks = taskRepository.findByText(filter);
         } else {
-            messages = messageRepository.findAll();
+            tasks = taskRepository.findAll();
         }
 
-        model.addAttribute("messages", messages);
+        model.addAttribute("tasks", tasks);
         model.addAttribute("filter", filter);
 
         return "main";
@@ -72,7 +70,7 @@ public class MainController {
             @RequestParam String tag, Map<String, Object> model,
             @RequestParam("file") MultipartFile file
     ) throws IOException {
-        Message message = new Message(text, tag, university, type, yearOfStudy, nameOfCourse, user);
+        Task task = new Task(text, tag, university, type, yearOfStudy, nameOfCourse, user);
 
         if (file != null && !file.getOriginalFilename().isEmpty()) {
             File uploadDir = new File(uploadPath);
@@ -81,30 +79,27 @@ public class MainController {
                 uploadDir.mkdir();
             }
 
-            message.setFilenameForUser(file.getOriginalFilename());
+            task.setFilenameForUser(file.getOriginalFilename());
 
             String uuidFile = UUID.randomUUID().toString();
             String resultFilename = uuidFile + "." + file.getOriginalFilename();
 
             file.transferTo(new File("/" + uploadPath + "/" + resultFilename));
-
-            message.setFilename(resultFilename);
+            task.setFilename(resultFilename);
         }
 
-        messageRepository.save(message);
+        taskRepository.save(task);
 
-        Iterable<Message> messages = messageRepository.findAll();
-
-        model.put("messages", messages);
-
+        Iterable<Task> tasks = taskRepository.findAll();
+        model.put("tasks", tasks);
         return "main";
     }
 
     @GetMapping("/main/{id}/delete")
     public String deleteById(@PathVariable(value = "id") long id, Model model) throws IOException {
-        Message message = messageRepository.findById(id).orElseThrow();
-        Files.delete(Paths.get(uploadPath + "/" + message.getFilename()));
-        messageRepository.delete(message);
+        Task task = taskRepository.findById(id).orElseThrow();
+        Files.delete(Paths.get(uploadPath + "/" + task.getFilename()));
+        taskRepository.delete(task);
         return "redirect:/main";
     }
 
@@ -113,8 +108,8 @@ public class MainController {
     public void downloadResource(HttpServletRequest request, HttpServletResponse response,
                                     @PathVariable(value = "id") Long id) throws IOException {
 
-        Message message = messageRepository.findById(id).orElseThrow();
-        File file = new File(uploadPath + "/" + message.getFilename());
+        Task task = taskRepository.findById(id).orElseThrow();
+        File file = new File(uploadPath + "/" + task.getFilename());
         if (file.exists()) {
             String mimeType = URLConnection.guessContentTypeFromName(file.getName());
             if (mimeType == null) {
@@ -130,46 +125,46 @@ public class MainController {
 
     @GetMapping("/main/{id}/edit")
     public String editById(@PathVariable(value = "id") long id, Model model) throws IOException {
-        if (!messageRepository.existsById(id)) {
+        if (!taskRepository.existsById(id)) {
             return "main";
         }
-        Message message = messageRepository.findById(id).orElseThrow();
-        ArrayList<Message> res = new ArrayList<>();
-        model.addAttribute("message", message.getId());
-        model.addAttribute("text", message.getText());
-        model.addAttribute("tag", message.getTag());
-        model.addAttribute("university", message.getUniversity());
-        model.addAttribute("type", message.getType());
-        model.addAttribute("nameOfCourse", message.getNameOfCourse());
-        model.addAttribute("yearOfStudy", message.getYearOfStudy());
-        model.addAttribute("filename", message.getFilename());
+        Task task = taskRepository.findById(id).orElseThrow();
 
-        return "messageEdit";
+        model.addAttribute("task", task.getId());
+        model.addAttribute("text", task.getText());
+        model.addAttribute("tag", task.getTag());
+        model.addAttribute("university", task.getUniversity());
+        model.addAttribute("type", task.getType());
+        model.addAttribute("nameOfCourse", task.getNameOfCourse());
+        model.addAttribute("yearOfStudy", task.getYearOfStudy());
+        model.addAttribute("filename", task.getFilename());
+
+        return "taskEdit";
     }
 
 
     @PostMapping("/main/{id}/edit")
     public String edit(
             @PathVariable(value = "id") long id,
-            @AuthenticationPrincipal User user,
             @RequestParam String text,
             @RequestParam String university,
             @RequestParam String yearOfStudy,
             @RequestParam String type,
             @RequestParam String nameOfCourse,
-            @RequestParam String tag, Map<String, Object> model,
+            @RequestParam String tag,
+            Map<String, Object> model,
             @RequestParam("file") MultipartFile file
     ) throws IOException {
-        Message message = messageRepository.findById(id).orElseThrow();
-        message.setText(text);
-        message.setUniversity(university);
-        message.setCourse(yearOfStudy);
-        message.setType(type);
-        message.setNameOfCourse(nameOfCourse);
-        message.setTag(tag);
+        Task task = taskRepository.findById(id).orElseThrow();
+        task.setText(text);
+        task.setUniversity(university);
+        task.setCourse(yearOfStudy);
+        task.setType(type);
+        task.setNameOfCourse(nameOfCourse);
+        task.setTag(tag);
 
-        if(Files.exists(Paths.get(uploadPath + "/" + message.getFilename()))) {
-            Files.delete(Paths.get(uploadPath + "/" + message.getFilename()));
+        if(Files.exists(Paths.get(uploadPath + "/" + task.getFilename()))) {
+            Files.delete(Paths.get(uploadPath + "/" + task.getFilename()));
         }
 
         if (file != null && !file.getOriginalFilename().isEmpty()) {
@@ -179,21 +174,19 @@ public class MainController {
                 uploadDir.mkdir();
             }
 
-            message.setFilenameForUser(file.getOriginalFilename());
+            task.setFilenameForUser(file.getOriginalFilename());
 
             String uuidFile = UUID.randomUUID().toString();
             String resultFilename = uuidFile + "." + file.getOriginalFilename();
 
             file.transferTo(new File("/" + uploadPath + "/" + resultFilename));
 
-            message.setFilename(resultFilename);
+            task.setFilename(resultFilename);
         }
+        taskRepository.save(task);
 
-        messageRepository.save(message);
-
-        Iterable<Message> messages = messageRepository.findAll();
-
-        model.put("messages", messages);
+        Iterable<Task> tasks = taskRepository.findAll();
+        model.put("tasks", tasks);
 
         return "main";
     }

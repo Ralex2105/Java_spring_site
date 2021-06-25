@@ -3,7 +3,7 @@
 
 
 <@c.page>
-    <#if messages?size != 0>
+    <#if tasks?size != 0>
         <h5><strong>Ваши работы:</strong></h5>
         <#include "parts/taskList.ftlh">
     <#else>

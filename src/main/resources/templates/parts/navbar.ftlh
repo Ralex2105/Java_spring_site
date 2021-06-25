@@ -26,7 +26,7 @@
     </div>
 
     <div class="mx-auto order-0">
-        <a class="navbar-brand mx-auto">Web-tasks</a>
+        <a class="navbar-brand mx-auto">Web-task</a>
     </div>
 
 

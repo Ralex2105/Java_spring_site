@@ -4,7 +4,7 @@ package ru.webapp.domain;
 import javax.persistence.*;
 
 @Entity
-public class Message {
+public class Task {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
@@ -23,11 +23,11 @@ public class Message {
     private String filename;
     private String filenameForUser;
 
-    public Message() {
+    public Task() {
     }
 
-    public Message(String text, String tag, String university, String type,
-                   String yearOfStudy, String nameOfCourse, User user) {
+    public Task(String text, String tag, String university, String type,
+                String yearOfStudy, String nameOfCourse, User user) {
         this.author = user;
         this.text = text.trim();
         this.tag = tag.trim();

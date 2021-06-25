@@ -25,7 +25,7 @@ public class RegistrationController {
     public String addUser(User user, Map<String, Object> model) {
 
         if (!userService.addUser(user)) {
-            model.put("message", "User exists!");
+            model.put("message", "Пользователь c таким логином уже существует");
             return "registration";
         }
         return "redirect:/login";
@@ -36,9 +36,9 @@ public class RegistrationController {
         boolean isActivated = userService.activateUser(code);
 
         if (isActivated) {
-            model.addAttribute("message", "User succesfully activated ");
+            model.addAttribute("message", "Аккаунт активирован");
         } else {
-            model.addAttribute("message", "User activation code is not found");
+            model.addAttribute("message", "Активационный код недействителен");
         }
         return "login";
     }

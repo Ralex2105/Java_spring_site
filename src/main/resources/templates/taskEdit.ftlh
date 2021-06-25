@@ -12,7 +12,7 @@
                 crossorigin="anonymous"></script>
     </head>
 
-    <form method="post" action="/main/${message}/edit" enctype="multipart/form-data">
+    <form method="post" action="/main/${task}/edit" enctype="multipart/form-data">
         <div class="form-group">
             <input type="text" value="${text}" class="form-control" name="text" placeholder="Введите название работы" required/>
         </div>
